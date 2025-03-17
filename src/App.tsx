@@ -14,26 +14,26 @@ function App() {
   const handelPlayListChange = async () => {
     if (inputRef.current) {
       const playlistURL = inputRef.current.value;
-
-      const pattern =
-        /^https:\/\/www\.youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)$/;
-
-      if (pattern.test(playlistURL)) {
-        setValidPlaylist(true);
+      try {
         const playlistURLObj = new URL(playlistURL);
         const playlistID = playlistURLObj.searchParams.get("list");
-        const PlaylistVideos = await fetchPlaylistVideos(playlistID!);
-        const PlaylistLength = getPlaylistLength(PlaylistVideos);
-        if (
-          PlaylistLength.hours === 0 &&
-          PlaylistLength.minutes === 0 &&
-          PlaylistLength.seconds === 0
-        ) {
-          setValidPlaylist(false);
+        if (playlistURLObj.host === "youtube.com" && playlistID) {
+          setValidPlaylist(true);
+          const PlaylistVideos = await fetchPlaylistVideos(playlistID!);
+          const PlaylistLength = getPlaylistLength(PlaylistVideos);
+          if (
+            PlaylistLength.hours === 0 &&
+            PlaylistLength.minutes === 0 &&
+            PlaylistLength.seconds === 0
+          ) {
+            setValidPlaylist(false);
+          } else {
+            setPlaylistLength(PlaylistLength);
+          }
         } else {
-          setPlaylistLength(PlaylistLength);
+          setValidPlaylist(false);
         }
-      } else {
+      } catch {
         setValidPlaylist(false);
       }
     }
